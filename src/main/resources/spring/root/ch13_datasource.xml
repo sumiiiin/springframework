@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<!-- data source(connection pool)설정  -->
+	<!-- bean은 관리 객체를 만들겠다는 뜻 -->
+	<bean id="dataSource"
+		  class="org.apache.commons.dbcp2.BasicDataSource"
+		  destroy-method="close">
+		  <!-- destroy-method는 스프링 컨테이너가 해당 빈을 소멸시킬 때 호출할 메서드를 지정하는 설정 -->
+		
+		  <!-- setter 주입(연결을 위한 설정) -->
+		  <property name="driverClassName" value="oracle.jdbc.OracleDriver"></property><!-- oracle버전 -->
+		  <property name="url" value="jdbc:oracle:thin:@192.168.3.112:1521:orcl"></property><!-- ip, port, dbms이름 -->
+		  <property name="username" value="spring"></property>
+		  <property name="password" value="oracle"></property>
+		  
+		  <!-- 커넥션 유지 관리 설정 -->
+		  <property name="initialSize" value="2"></property><!-- 팀원이 4명이면 최소한 8개를 줘? -->
+		  <property name="maxTotal" value="4"></property><!-- initialSize 보단 커야하는 값 적당히 두배로 준다. -->
+		  <property name="maxIdle" value="2"></property><!-- 커넥션이 가장 사용이 안 될 때 연결을 몇 개 까지 남길거냐 -->
+	</bean>
+
+</beans>

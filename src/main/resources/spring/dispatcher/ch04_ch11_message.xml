@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+	<!-- ResourceBundleMessageSource클래스가 객체로 만들어 질 때 아래의 프로퍼티 파일을 읽고 값을 저장한 다음 사용... -->
+		<property name="basenames">
+		<list>
+			<value>message.ch04_error</value>
+			<value>message.ch11_internaionalizaion</value>
+		</list>
+		</property>
+	</bean>
+</beans>
