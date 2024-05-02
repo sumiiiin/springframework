@@ -6,9 +6,76 @@
 		<selectKey keyProperty="bno" order="BEFORE" resultType="int"><!-- 자동 생성 된 key를 dto에 저장하는 방법 -->
 			select seq_bno.nextval from dual<!-- 이 쿼리문을 sql에 실행해 보면 1씩 증가한다. -->
 		</selectKey>
-		insert into board(bno, btitle, bcontent, bdate, mid, bhitcount)
-		values(#{bno}, #{btitle}, #{bcontent}, sysdate, #{mid}, 0)<!-- 필드 값이 들어옴 -->
+		insert into board(
+			bno, btitle, bcontent, bdate, mid, bhitcount, 
+			battachoname, battachtype, battachdata
+			
+		)values(<!-- 필드 값이 들어옴 -->
+			#{bno}, #{btitle}, #{bcontent}, sysdate, #{mid}, 0, 
+			#{battachoname},<!-- null일 수도 있고 아닐 수도 있으면 jdbctype을 지정해야 하는데 mapper-config에서 설정 했다. -->
+			#{battachtype},
+			#{battachdata}
+		)
 	</insert><!-- dao에 insert태그에 해당하는 메소드가 있어야 한다. -->
-
+	
+	<select id="count" resultType="int"><!-- select문의 결과값은 int야 -->
+		select count(*) from board
+	</select>
+	<select id="selectByPage" parameterType="Ch13Pager" resultType="Ch13Board"> <!-- dto 연결시키기 -->
+		<![CDATA[
+			select rnum, bno, btitle, bcontent, mid, bdate, bhitcount
+			from (
+			select rownum as rnum, bno, btitle, bcontent, mid, bdate, bhitcount
+			from (
+			-- 페이지 대상이 되는 행들
+			select bno, btitle, bcontent, mid, bdate, bhitcount
+			from board
+			--- 검색 대상을 가져온다면 where 절을 추가
+			order by  bno desc
+			)
+			where rownum <= #{endRowNo}
+			)
+			where rnum >= #{startRowNo}
+		]]>
+		<!--  <![CDATA[]]> 이 안에 있는 내용은 해석하지 않고 있는 그대로 받아들인다는 뜻  -->
+	</select><!-- 여기서 리턴 하는 값은 아마 10개가 나올 것임 어떻게 사용해야 할까?
+				행 하나는 하나의   board dto 객체임 객체 10개가 나오는 것이다.
+				resultType="Ch13Board" 리턴 타입에 dto 명시하고 사용
+				 -->
+				 
+	<select id="selectByBno" parameterType="int" resultType="Ch13Board">
+		select bno, btitle, bcontent, mid, bdate, bhitcount, battachoname, battachtype
+		from board
+		where bno=#{bno}<!-- 괄호안의 이름은 상관 없다 값이 1개만 나오면 된다. -->
+	</select>
+	<!-- 파일 데이터는 파일을 다운받아서 반환하는 형태로 가져 올 것이다. -->
+<!-- 	<resultMap type="hashMap" id="battachType">
+		<result column="battachdata" jdbcType="BLOB" javaType="byte[]"/>
+	</resultMap> -->
+	
+	<select id="selectAttachData" parameterType="int" resultType="Ch13Board">
+		select battachdata from board where bno=#{bno}
+	</select>
+	
+	<update id="update" parameterType="Ch13Board">
+		
+		update board set 
+			btitle =#{btitle},
+			bcontent =#{bcontent}
+		
+		<if test="battachoname != null">
+			,
+			battachoname =#{battachoname},
+			battachtype =#{battachtype},
+			battachdata =#{battachdata}
+		</if>
+			where bno =#{bno}
+		
+	</update>
+	<!-- bno라서 int타입? -->
+	<delete id="deleteByBno" parameterType="int">
+		delete from board where bno=#{bno}
+	</delete>
+	
 
 </mapper>
