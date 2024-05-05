@@ -32,6 +32,7 @@
       <param-value>true</param-value>
     </init-param>
     <load-on-startup>1</load-on-startup>
+    
     <!-- multipart/form-data를 해석하기 위한 설정 -->
 <!--     <multipart-config>
     	임시 파일이 저장 될 폴더의 절대 경로만 가능
@@ -72,5 +73,15 @@
       <filter-name>Ch02Filter</filter-name>
       <url-pattern>/ch02/*</url-pattern>
    </filter-mapping>
+   
+   <!-- spring security가 사용하는 필터 등록 -->
+    <filter>
+    <filter-name>springSecurityFilterChain</filter-name>
+    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>springSecurityFilterChain</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
   
 </web-app>

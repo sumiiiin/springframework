@@ -14,6 +14,7 @@
 		<config>src/main/resources/spring/root/Ch12_properties.xml</config>
 		<config>src/main/resources/spring/root/ch13_datasource.xml</config>
 		<config>src/main/resources/spring/root/ch15_transaction.xml</config>
+		<config>src/main/resources/spring/root/ch17_security.xml</config>
 	</configs>
 	<autoconfigs>
 		<config>src/main/resources/spring/dispatcher/ch01_static_resource.xml</config>

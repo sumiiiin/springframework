@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+	
+	<!-- 요청에 따라 시큐리티를 적용할지말지 결정해야 한다. 시큐리티 필터가 여러개라서 필터체인이라고 한다. -->
+	
+	<!-- 보안 필터 체인을 적용하지 않는 요청 경로 : 보안 필터 체인 설정보다 먼저 설정해야함 -->
+    <security:http pattern="/resources/**" security="none"/>
+
+   <!-- 로그인 성공했을 때 실행하는 핸들러 -->
+   <bean id="ch17AuthenticationSuccessHandler"
+   		 class="com.mycompany.springframework.security.Ch17AuthenticationSuccessHandler">
+   		 <property name="defaultTargetUrl" value="/" />
+   		 <!-- property에 관리 객체의 setter주입 -->
+   </bean>
+   
+   <!-- 로그인 실패했을 때 실행하는 핸들러 -->
+   <bean id="ch17AuthenticationFailureHandler"
+   		 class="com.mycompany.springframework.security.Ch17AuthenticationFailureHandler">
+   		 <property name="defaultFailureUrl" value="/ch17/loginForm" />
+   </bean>
+   
+   <!-- 로그아웃 성공했을 때 실행하는 핸들러 -->
+   <bean id="ch17LogoutSuccessHandler"
+   		 class="com.mycompany.springframework.security.Ch17LogoutSuccessHandler">
+   		 <property name="defaultTargetUrl" value="/" />
+   </bean>
+   
+
+    <!-- 보안 필터 체인 설정 -->
+    <security:http >
+      <!-- 인증 방식 설정: Form 인증 방식 -->         
+      <security:form-login
+         login-page="/ch17/loginForm"
+         username-parameter="mid"
+         password-parameter="mpassword"
+         login-processing-url="/login"
+         authentication-success-handler-ref="ch17AuthenticationSuccessHandler"
+         authentication-failure-handler-ref="ch17AuthenticationFailureHandler"/>
+         <!-- form에 해당하는 action url이 url로 들어가고 파라미터도 form의 name이 들어간다. -->
+         <!-- controll에 form내용을 받는 post매핑 요청 매소드를 만들면 안된다 인증을 그건 컨트롤러에서 처리하겠다는 말이다.스프링 시큐리티한테 넘기려면 여기서 설정해야 한다. -->
+         <!-- 인증이 성공했을 때 와 실패했을 때의 사용될 관리객체를 지정한다. 클래스 만들었다.-->
+         <!-- 관리객체를 만드는 방법은 ...xml에 bean으로 만들거나 어노테이션 붙여서 만들거나... -->
+         <!-- 그럼 내가 만든 관리 객체는 어노테이션을 붙이고 그게 아니면 bean으로 등록하는 건가? 내가 만든것도 bean등록 되지 않나? -->
+         
+      <!-- Post 방식으로 요청하는 로그아웃 -->
+      <security:logout 
+         logout-url="/logout"
+         success-handler-ref="ch17LogoutSuccessHandler"/>
+         <!-- 시큐리티가 검증 할 데이터는 post방식으로 넘겨야 한다고? -->
+         
+      <!-- 사이트간 요청 위조 방지 비활성화 -->
+      <!-- logout도 post 방식으로 요청(_csrf의 토큰을 전달해야함) -->
+      <!-- csrf 토큰은 form에 식별할 수 있는 토큰을 담아서 유효한 폼인지 식별할 수 있게 한다. 근데 폼마다 넣기 귀찮아서 비활성화 한다.
+      	기본 값은 활성화 되어있기 때문에 아래의 코드로 비활성호 ㅏ했다.-->
+      <security:csrf disabled="true"/>
+      
+      <!-- 요청 URL 권한 설정 방법1-->
+      <!-- access권한을 갖고 있는 사람만 pattern의 경로로 요청할 수 있다. --> 
+      
+       <!-- 인증이 된 상태에서 해당 권한이 있는 사용자는 해당 경로를 요청할 수 있다. -->
+      <security:intercept-url pattern="/ch17/admin/**" access="hasRole('ROLE_ADMIN')"/>
+      <security:intercept-url pattern="/ch17/manager/**" access="hasRole('ROLE_MANAGER')"/>
+      
+      <!-- (로그인 성공시)인증된 사용자는 user하위 경로를 요청할 수 있다. --> 
+      <security:intercept-url pattern="/ch17/user/**" access="isAuthenticated()"/>
+    
+      <!-- 모두에게 어떠한 요청이던 다 허용하겠다.(위의 권한에 대한 설정을 제외한 모든 요청) -->
+      <security:intercept-url pattern="/**" access="permitAll"/>
+      
+      <!-- 권한 없음일 경우 보여줄 페이지 설정 403에러가 뜨는데 그 에러 메시지 경로 대신 보여줄 페이지를 지정-->
+      <security:access-denied-handler error-page="/ch17/error403"/><!-- contoller에서 정의 한다. -->
+   </security:http>
+   
+      <!-- 
+	   요청 URL 권한 설정 방법2
+	   클래스 또는 메소드에 @Secured("ROLE_ADMIN")을 붙일 수 있도록 설정
+    -->
+   <security:global-method-security secured-annotations="enabled"/>
+   
+
+
+   	<!-- DB연동과 관련이 있다. -->																																												
+   <!-- 인증 관리자 설정(아이디와 패스워드를 DB와 비교해서 로그인 처리 관리) -->																			
+	   <security:authentication-manager>
+      <security:authentication-provider ref="daoAuthenticationProvider"/>
+   </security:authentication-manager>
+
+   <!-- 인증 제공자 설정 -->
+   <!-- spring이 제공하는 클래스는 어노테이션을 붙일 수 없기 때문에 xml에서 관리객체로 만든다. 위 설정에 참조값으로 들어감  -->
+   <bean id="daoAuthenticationProvider"
+        class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+      <property name="userDetailsService" ref="ch17UserDetailsService"/>
+      <property name="authoritiesMapper" ref="roleHierarchyAuthoritiesMapper"/>
+   </bean> 
+   
+   <!-- 사용자 정보를 DB로부터 가져오는 객체 설정 -->
+   <!-- @Service를 대신 사용해도 된다. -->
+   <!-- <bean id="ch17UserDetailsService" 
+         class="com.mycompany.springwebapp.security.Ch17UserDetailsService"/> -->
+   
+   <!-- 권한 계층 설정 -->
+   <bean id="roleHierarchyAuthoritiesMapper"
+        class="org.springframework.security.access.hierarchicalroles.RoleHierarchyAuthoritiesMapper">
+      <constructor-arg ref="roleHierarchyImpl"/>
+   </bean>   
+   <bean id="roleHierarchyImpl" 
+        class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl">
+      <property name="hierarchy">
+         <value>
+            ROLE_ADMIN > ROLE_MANAGER
+            ROLE_MANAGER > ROLE_USER
+         </value>
+      </property>
+   </bean>   
+
+</beans>
