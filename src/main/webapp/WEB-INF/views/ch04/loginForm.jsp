@@ -18,36 +18,6 @@
 		
 		<!-- 사용자 정의 자바스크립트 -->
 		<script>
-			function handleBtn1() {
-				var mid = $("#mid").val();
-				var mpassword = $("#mpassword").val();
-				
-				$.ajax({
-					url: "postMethodAjax",
-					type: "post",
-					//data: "mid="+ mid +"&mpassword="+ mpassword, 이렇게 사용해도 된다. 불편쓰 data는 제이슨이다.
-					//data: {mid:mid, mpassword:mpassword}, 속성의 이름과 변수 이름이 같다면
-					data:{mid, mpassword}, // 이렇게 사용해도 된다.
-					
-					// 자동으로 JSON을 => javascript Object로 변환 
-					// 요청할 때는 json 응답할 때는 javascript Object
-					// 그래서 success에서 객체의 값에 접근하듯 사용할 수 있는 것이다.
-					
-					success: function(data){
-						/* $("#ajaxResponseInclude").html(data); */
-						console.log(data);
-						if(data.result === "success") {
-							$("#ajaxResponseInclude").html("로그인 성공");
-						} else {
-							if(data.reason === "wrongMid") {
-								$("#ajaxResponseInclude").html("아이디가 존재하지 않습니다.");
-							} else {
-								$("#ajaxResponseInclude").html("비밀번호가 틀립니다.");
-							}
-						}
-					}
-				});
-			}
 			
 		</script>
 	</head>

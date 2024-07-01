@@ -39,13 +39,13 @@ public class Ch04SignUpFormValidator implements Validator{
 			errors.rejectValue("mpassword", null, "비밀번호는 알파벳 대소문자 및 숫자를 포함해야 합니다.");
 		}
 		
-		// 이름 검사
+	/*	// 이름 검사
 		String name = signUpForm.getMname();
 		if(name == null || name.equals("")) {
 			errors.rejectValue("mname", null, "이름은 반드시 입력되어야 합니다.");
 		} else if(name.length() < 3 || name.length() > 11) {
 			errors.rejectValue("mname", null, "이름은 2자 이상 10자 이하이여야 합니다.");
-		}
+		}*/
 		// 이메일 검사
 		String email = signUpForm.getMemail();
 		String pattern_email = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}";

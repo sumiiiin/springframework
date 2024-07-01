@@ -8,6 +8,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.mycompany.springframework.dto.Ch04LoginForm;
@@ -33,7 +34,7 @@ public class Ch04Controller {
 	   }
 	   
 	   // 중요!
-	   @RequestMapping("/login")
+	   @PostMapping("/login")
 	   public String login(@Valid Ch04LoginForm loginForm, Errors errors, Model model) {
 	      // 유효성 검사 실패 시 다시 로그인 폼 보여주기
 	      if(errors.hasErrors()) {
@@ -64,7 +65,7 @@ public class Ch04Controller {
 	      // 유효성 검사 실패 시 다시 로그인 폼 보여주기
 	      if(errors.hasErrors()) {
 	         model.addAttribute("chNum", "ch04");
-	         return "ch04/signUpForm"; // 왜 loginForm메소드로 넘겨주지 않는가?
+	         return "ch04/signUpForm";
 	      }
 	      
 	      // 로그인 처리
